@@ -19,6 +19,8 @@ for k in file2:
     if len(parts) == 2:
         dayTime.append(int(parts[0]))
         intense.append(float(parts[1].replace(',', '.')))
-
 plt.plot(dayTime,intense)
+plt.xlabel("czas w ciągu doby [s]")
+plt.ylabel("ilość połączeń w danej sekundzie")
+plt.grid()
 plt.show()
