@@ -37,3 +37,5 @@ plt.ylabel("Ilość połączeń w danej sekundzie")
 plt.grid()
 
 plt.show()
+
+print("Elo")
