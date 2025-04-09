@@ -1,5 +1,7 @@
 import sys
 import numpy as np
+from PyQt6.QtCore import Qt
+
 import matplotlib.pyplot as plt
 from PyQt6.QtWidgets import (
     QApplication,
@@ -14,13 +16,10 @@ from PyQt6.QtGui import QFont
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
-time_file = "C:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
-# "../data/time.txt"
+time_file = "../data/time.txt"
 
-intensity_file = (
-    "C:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intensity.txt"
-)
-# "../data/intensity.txt"
+
+intensity_file = ("../data/intensity.txt")
 
 
 # domnożyć sobie tabelkę żeby parę dni (6-10)
@@ -89,10 +88,10 @@ class TrafficAnalysisApp(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
 
         self.time_file = (
-            "C:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
+            "../data/time.txt"
         )
         self.intensity_file = (
-            "C:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intensity.txt"
+            "../data/intensity.txt"
         )
 
         self.time = load_time_data(self.time_file)
@@ -159,11 +158,19 @@ class TrafficAnalysisApp(QMainWindow):
         self.stacked_widget.addWidget(self.analysis_page)
 
     def init_education_page(self):
+
+
         self.education_page = QWidget()
         layout = QVBoxLayout()
-
+        layout.setSpacing(0)
         label = QLabel("Teoria i wzory dotyczące analizy ruchu")
+        label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        label.setFont(QFont("Arial", 18))
+
+        label2= QLabel("Godzina Największego Ruchu GNR – jest to okres kolejnych 60 minut w ciągu doby, podczas którego średnie natężenie ruchu jest największe. Okres, określający GNR jak i natężenie ruchu podczas GNR zmieniają się w poszczególnych dniach. Zamiast kolejnych 60 minut GNR często określa się (w systemach pomiarowych) dla czterech kolejnych kwadransów")
         layout.addWidget(label)
+        label2.setWordWrap(True)
+        layout.addWidget(label2)
 
         back_button = QPushButton("Wróć")
         back_button.clicked.connect(
@@ -176,6 +183,17 @@ class TrafficAnalysisApp(QMainWindow):
 
     def calculate_adpqh(self):
         """Oblicza ADPQH i wyświetla wynik."""
+        """
+        biggest=0
+        for counter in range(1, 1441):
+            for k in range(counter, counter+14):
+                if(k in )
+        
+        try:
+            self.day_time
+        except:
+            
+        """
         avg_time = sum(self.time) / len(self.time)
         quarter_intensity = np.zeros(96)
 
@@ -250,6 +268,8 @@ plt.ylabel("Ilość połączeń w danej minucie")
 plt.grid()
 plt.show()
 """
+
+#kwadranse
 
 
 # Uruchomienie aplikacji
