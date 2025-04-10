@@ -11,19 +11,23 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QStackedWidget,
+    QSpacerItem,
 )
 from PyQt6.QtGui import QFont
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 time_file = "../data/time.txt"
 
 
-intensity_file = ("../data/intensity.txt")
+intensity_file = "../data/intensity.txt"
 
 
-# domnożyć sobie tabelkę żeby parę dni (6-10)
-# wiele (2){im więcej tym lepiej} metod i pokazac różnice między nimi
+# TODO domnożyć sobie tabelkę żeby parę dni (6-10)
+# TODO wiele (2){im więcej tym lepiej} metod i pokazac różnice między nimi
+# TODO i cyk do execa
+# todo dodać sformatowane wzory do edukacji
 
 
 def load_time_data(filepath):
@@ -47,25 +51,6 @@ def load_intensity_data(filepath):
                 intense.append(float(parts[1].replace(",", ".")))
 
     return day_time, intense
-
-
-def calculate_adpqh(day_time, intense):
-    """Metoda ADPQH - kwadrans o największym ruchu"""
-    quarter_intensity = np.zeros(96)  # 96 kwadransów w dobie
-
-    for minute, intensity in zip(day_time, intense):
-        m = minute // 15  # Grupa 15-minutowa
-        quarter_intensity[m] += intensity
-
-    quarter_avg = quarter_intensity / 15
-    peak_q = np.argmax(quarter_avg)
-    peak_q_start = peak_q * 15
-    peak_q_end = peak_q_start + 15
-
-    print(
-        f"Kwadrans największego ruchu występuje między (ADPQH): {peak_q_start // 60:02d}:{peak_q_start % 60:02d} - "
-        f"{peak_q_end // 60:02d}:{peak_q_end % 60:02d}"
-    )
 
 
 def plot_intensity(day_time, intense):
@@ -159,18 +144,20 @@ class TrafficAnalysisApp(QMainWindow):
 
     def init_education_page(self):
 
-
         self.education_page = QWidget()
         layout = QVBoxLayout()
-        layout.setSpacing(0)
+        QVBoxLayout.setSpacing(layout,0)
         label = QLabel("Teoria i wzory dotyczące analizy ruchu")
-        label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        label.setFont(QFont("Arial", 18))
+        label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+        label.setFont(QFont("Arial", 17))
+        QVBoxLayout.setSpacing(layout,0)
+        layout.addWidget(label)
 
         label2= QLabel("Godzina Największego Ruchu GNR – jest to okres kolejnych 60 minut w ciągu doby, podczas którego średnie natężenie ruchu jest największe. Okres, określający GNR jak i natężenie ruchu podczas GNR zmieniają się w poszczególnych dniach. Zamiast kolejnych 60 minut GNR często określa się (w systemach pomiarowych) dla czterech kolejnych kwadransów")
-        layout.addWidget(label)
+        label2.setAlignment(Qt.AlignmentFlag.AlignTop)
         label2.setWordWrap(True)
         layout.addWidget(label2)
+        QVBoxLayout.addSpacing(layout, 320)
 
         back_button = QPushButton("Wróć")
         back_button.clicked.connect(
@@ -184,6 +171,7 @@ class TrafficAnalysisApp(QMainWindow):
     def calculate_adpqh(self):
         """Oblicza ADPQH i wyświetla wynik."""
         """
+        #ecie pecie: próby poprawy algorytmu do adpqh
         biggest=0
         for counter in range(1, 1441):
             for k in range(counter, counter+14):
@@ -268,9 +256,6 @@ plt.ylabel("Ilość połączeń w danej minucie")
 plt.grid()
 plt.show()
 """
-
-#kwadranse
-
 
 # Uruchomienie aplikacji
 if __name__ == "__main__":
