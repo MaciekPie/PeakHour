@@ -29,13 +29,14 @@ intensity_file = (
 
 # TODO domnożyć sobie tabelkę żeby parę dni (6-10)
 # TODO wiele (2){im więcej tym lepiej} metod i pokazac różnice między nimi
+# todo dodać slider w gui oraz opcję wyświetlania wykresów z wielu danych
 # TODO i cyk do execa
-# todo dodać sformatowane wzory do edukacji
 
-#implementacja jednej metody sugerowanie tcbh
-#plus uśredniony wykres ze wszystkiego na koniec
-#podświetlenie tego gnr
-#wartość uśredniona w tej godzinie
+# implementacja jednej metody sugerowanie tcbh
+# plus uśredniony wykres ze wszystkiego na koniec
+# podświetlenie tego gnr
+# wartość uśredniona w tej godzinie
+
 
 def load_time_data(filepath):
     """Wczytuje dane o czasie trwania połączeń"""
@@ -58,6 +59,20 @@ def load_intensity_data(filepath):
                 intense.append(float(parts[1].replace(",", ".")))
 
     return day_time, intense
+
+
+def intensity_grouped(filepath):
+    combined_intensity = {}
+    with open(filepath, "r") as file:
+
+        for line in file:
+            parts = line.strip().split("\t")
+
+            if len(parts) == 2:
+                temp_time = int(parts[0])
+                temp_intese = float(parts[1].replace(",", "."))
+                combined_intensity[temp_time] = temp_intese
+    return combined_intensity
 
 
 def plot_intensity(day_time, intense):
@@ -88,8 +103,12 @@ class TrafficAnalysisApp(QMainWindow):
             # "../data/intensity.txt"
         )
 
-        self.time = load_time_data(self.time_file)
+        self.peak_start = None
+        self.peak_end = None
+
+        self.connection_time = load_time_data(self.time_file)
         self.day_time, self.intense = load_intensity_data(self.intensity_file)
+        self.grouped_intensity = intensity_grouped(self.intensity_file)
 
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)  # Ustawienie centralnego widgetu
@@ -124,6 +143,8 @@ class TrafficAnalysisApp(QMainWindow):
         self.stacked_widget.addWidget(self.main_page)
 
     def init_analysis_page(self):
+        # todo dorobic równoległe wykresy dla innych dni i metod
+
         self.analysis_page = QWidget()
         layout = QVBoxLayout()
 
@@ -153,7 +174,7 @@ class TrafficAnalysisApp(QMainWindow):
         self.stacked_widget.addWidget(self.analysis_page)
 
     def init_education_page(self):
-
+        """# todo dodać sformatowane wzory do edukacji
         self.education_page = QWidget()
         layout = QVBoxLayout()
         QVBoxLayout.setSpacing(layout, 0)
@@ -169,7 +190,57 @@ class TrafficAnalysisApp(QMainWindow):
         label2.setAlignment(Qt.AlignmentFlag.AlignTop)
         label2.setWordWrap(True)
         layout.addWidget(label2)
-        QVBoxLayout.addSpacing(layout, 320)
+        QVBoxLayout.addSpacing(layout, 400)
+
+        back_button = QPushButton("Wróć")
+        back_button.clicked.connect(
+            lambda: self.stacked_widget.setCurrentWidget(self.main_page)
+        )
+        layout.addWidget(back_button)
+
+        self.education_page.setLayout(layout)
+        self.stacked_widget.addWidget(self.education_page)"""
+
+        self.education_page = QWidget()
+        layout = QVBoxLayout()
+
+        label = QLabel("Teoria i wzory dotyczące analizy ruchu")
+        label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+        label.setFont(QFont("Arial", 17))
+        layout.addWidget(label)
+
+        text = QTextEdit()
+        text.setReadOnly(True)
+        text.setHtml(
+            """
+            <h3>📌 Godzina Największego Ruchu (GNR)</h3>
+            <p>
+            Godzina Największego Ruchu to okres <b>kolejnych 60 minut</b> w ciągu doby, w którym <b>średnie natężenie połączeń</b> jest największe.
+            </p>
+            <p>Oznaczenie matematyczne:</p>
+            <pre>
+GNR = argmax<sub>t∈[0,1380]</sub> ∑<sub>i=0</sub><sup>59</sup> A(t + i)
+            </pre>
+
+            <h3>📌 ADPQH – Average Daily Peak Quarter-Hour</h3>
+            <p>
+            Metoda polega na zsumowaniu połączeń w <b>każdym 15-minutowym interwale</b> i znalezieniu tego o najwyższej wartości.
+            </p>
+            <pre>
+ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15q + i)
+            </pre>
+
+            <h3>📌 FDMP – Fixed Duration Max Peak</h3>
+            <p>
+            FDMP to metoda podobna do GNR, ale analizująca <b>dowolny ustalony interwał</b> (np. 30 minut).
+            </p>
+            <pre>
+FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
+            gdzie D = długość okna (np. 30 min)
+            </pre>
+            """
+        )
+        layout.addWidget(text)
 
         back_button = QPushButton("Wróć")
         back_button.clicked.connect(
@@ -194,7 +265,23 @@ class TrafficAnalysisApp(QMainWindow):
         quarter_avg = quarter_intensity / 15
         peak_q = np.argmax(quarter_avg)
         peak_q_start = peak_q * 15
-        peak_q_end = peak_q_start + 15
+        peak_q_end = peak_q_start + 15            
+        """
+
+        avg_time = sum(self.connection_time) / len(self.connection_time)
+
+        peak_start = 0
+        interval = 60
+        biggest = 0
+        for counter in range(1, 1380):
+            sum_intense = 0
+            for h in range(counter, counter + interval):
+                if h in self.grouped_intensity:
+                    sum_intense += self.grouped_intensity.get(h)
+            if sum_intense > biggest:
+                biggest = sum_intense
+                peak_start = counter
+        peak_end = peak_start + interval
         self.result_label.setText(
             f"Średni czas trwania: {avg_time:.2f} s\n"
             f"Największy ruch: {peak_start//60:02d}:{peak_start%60:02d} - {peak_end//60:02d}:{peak_end%60:02d}"
