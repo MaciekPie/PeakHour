@@ -19,17 +19,15 @@ from PyQt6.QtGui import QFont
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
-time_file = "Projekty/Github/PeakHour/data/time.txt"  # "../data/time.txt"
+time_file = "../data/time.txt"
 
 
-intensity_file = (
-    "Projekty/Github/PeakHour/data/intensity.txt"  # "../data/intensity.txt"
-)
+intensity_file = "../data/intensity.txt"
 
 
 # TODO domnożyć sobie tabelkę żeby parę dni (6-10)
 # TODO wiele (2){im więcej tym lepiej} metod i pokazac różnice między nimi
-# todo dodać slider w gui oraz opcję wyświetlania wykresów z wielu danych
+# TODO dodać slider w gui oraz opcję wyświetlania wykresów z wielu danych
 # TODO i cyk do execa
 
 # implementacja jednej metody sugerowanie tcbh
@@ -86,7 +84,7 @@ def plot_intensity(day_time, intense):
     plt.legend()
     plt.show()
 
-
+# TODO zrobić dynamiczne wybieranie plików do analizy
 # Próby GUI
 class TrafficAnalysisApp(QMainWindow):
     def __init__(self):
@@ -95,12 +93,10 @@ class TrafficAnalysisApp(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
 
         self.time_file = (
-            "Projekty/Github/PeakHour/data/time.txt"
-            # "../data/time.txt"
+            "../data/time.txt"
         )
         self.intensity_file = (
-            "Projekty/Github/PeakHour/data/intensity.txt"
-            # "../data/intensity.txt"
+            "../data/intensity.txt"
         )
 
         self.peak_start = None
@@ -174,7 +170,7 @@ class TrafficAnalysisApp(QMainWindow):
         self.stacked_widget.addWidget(self.analysis_page)
 
     def init_education_page(self):
-        """# todo dodać sformatowane wzory do edukacji
+        """
         self.education_page = QWidget()
         layout = QVBoxLayout()
         QVBoxLayout.setSpacing(layout, 0)
@@ -221,6 +217,12 @@ class TrafficAnalysisApp(QMainWindow):
             <pre>
 GNR = argmax<sub>t∈[0,1380]</sub> ∑<sub>i=0</sub><sup>59</sup> A(t + i)
             </pre>
+            
+            <h3>📌 Erlang</h3>
+            <p>
+            Jednostka średniego natężenia ruchu telekomunikacyjnego. Nazwa wywodzi się od nazwiska Agnera Krarupa Erlanga, autora teorii masowej obsługi, która stanowi uogólnienie zjawisk zaobserwowanych w telekomunikacji.
+            Dla danego systemu telekomunikacyjnego składającego się z 1 linii i czasu obserwacji równego 1 godzinie, jeśli linia ta zajęta jest cały czas przez pełną godzinę, to natężenie ruchu wynosi 1 erlang; odpowiednio, jeśli linia ta zajęta jest przez 30 minut, natężenie to wynosi 0,5 erlanga. 
+            </p>
 
             <h3>📌 ADPQH – Average Daily Peak Quarter-Hour</h3>
             <p>
@@ -238,6 +240,11 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
 FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
             gdzie D = długość okna (np. 30 min)
             </pre>
+             
+             <h3>📌 TCBH - Time-Consistent Busy Hour</h3>
+             <p>
+             Metoda polegająca na ustaleniu, <b> na podstawie danych z wielu dni </b>, kiedy średnia ilość połączeń jest największa. 
+             </p>
             """
         )
         layout.addWidget(text)
@@ -290,6 +297,18 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         self.peak_start = peak_start
         self.peak_end = peak_end
 
+    """
+    # TODO zrobić żeby pokazywało ilość erlandów na wykresie
+    # poniżej jest wzór z wikipedi angielskiej od razu w pythonie
+
+    def erlang_b(E, m: int) -> float:
+        //Calculate the probability of call losses.
+        inv_b = 1.0
+        for j in range(1, m + 1):
+            inv_b = 1.0 + inv_b * j / E
+        return 1.0 / inv_b
+    """
+
     def show_plot(self):
         """Tworzy wykres intensywności ruchu."""
         self.ax.clear()
@@ -307,7 +326,8 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         self.ax.set_xlabel("Czas w ciągu doby [min]")
         self.ax.set_ylabel("Ilość połączeń")
         self.ax.set_title("Intensywność ruchu")
-        self.ax.grid()
+        # TODO zmienić odstępy w siatce na 60 zamiast obecnych 200 dla większej czytelności
+        self.ax.grid(True, which='major', linestyle='-', linewidth=0.75)
         self.canvas.draw()
         self.canvas.setVisible(True)
 
