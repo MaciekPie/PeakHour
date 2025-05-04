@@ -20,11 +20,14 @@ from PyQt6.QtGui import QFont
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
-time_file = "Projekty/Github/PeakHour/data/time.txt"  # "../data/time.txt"
+time_file = (#"Projekty/Github/PeakHour/data/time.txt"
+              "../data/time.txt"
+             )
 
 
 intensity_file = (
-    "Projekty/Github/PeakHour/data/intensity.txt"  # "../data/intensity.txt"
+    #"Projekty/Github/PeakHour/data/intensity.txt"
+     "../data/intensity.txt"
 )
 
 
@@ -96,18 +99,16 @@ class TrafficAnalysisApp(QMainWindow):
         self.setWindowTitle("Analiza Ruchu Telekomunikacyjnego")
         self.setGeometry(100, 100, 800, 600)
 
-        self.time_file = "Projekty/Github/PeakHour/data/time.txt"  # "../data/time.txt"
+        #self.time_file = time_file
 
-        self.intensity_file = (
-            "Projekty/Github/PeakHour/data/intensity.txt"  # "../data/intensity.txt"
-        )
+        self.intensity_file = intensity_file
 
         self.peak_start = None
         self.peak_end = None
 
-        self.connection_time = load_time_data(self.time_file)
-        self.day_time, self.intense = load_intensity_data(self.intensity_file)
-        self.grouped_intensity = intensity_grouped(self.intensity_file)
+        #self.connection_time = load_time_data(self.time_file)
+        #self.day_time, self.intense = load_intensity_data(self.intensity_file)
+        #self.grouped_intensity = intensity_grouped(self.intensity_file)
 
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)  # Ustawienie centralnego widgetu
@@ -128,10 +129,8 @@ class TrafficAnalysisApp(QMainWindow):
 
         btn_analysis = QPushButton("Działanie")
         btn_analysis.clicked.connect(
-            lambda: {
-                self.stacked_widget.setCurrentWidget(self.analysis_page),
-                self.open_file_dialog(),
-            }
+            lambda: {self.stacked_widget.setCurrentWidget(self.analysis_page)
+                     }
         )
         layout.addWidget(btn_analysis)
 
@@ -172,11 +171,11 @@ class TrafficAnalysisApp(QMainWindow):
 
         self.analysis_page.setLayout(layout)
         self.stacked_widget.addWidget(self.analysis_page)
-
+    """
     def open_file_dialog(self):
         dialog = QFileDialog(self)
         dialog.setDirectory(
-            r"C:\Users\Lenovo\PycharmProjects\TeoriaRuchuAleDziała\PeakHour\data"
+            r"C:\\Users\Lenovo\PycharmProjects\TeoriaRuchuAleDziała\PeakHour\data"
         )
         dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
         dialog.setNameFilter("Text (*.txt)")
@@ -185,17 +184,18 @@ class TrafficAnalysisApp(QMainWindow):
             filenames = dialog.selectedFiles()
             if filenames:
                 self.file_list.addItems([str(Path(filename)) for filename in filenames])
+    """
 
     def open_file_dialog(self):
         filename, ok = QFileDialog.getOpenFileName(
             self,
-            "Wybierz plik",
+            "Wybierz plik z intensywnością",
             "C:\\Users\\Lenovo\\PycharmProjects\\TeoriaRuchuAleDziała\\PeakHour\\data",
             "Text File (*.txt)",
         )
         if filename:
             path = Path(filename)
-            self.filename_edit.setText(str(path))
+            self.intensity_file = str(path)
 
     def init_education_page(self):
 
@@ -292,6 +292,14 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         peak_q_end = peak_q_start + 15            
         """
 
+        self.time_file = time_file
+        self.open_file_dialog()
+
+
+        self.connection_time = load_time_data(self.time_file)
+        self.day_time, self.intense = load_intensity_data(self.intensity_file)
+        self.grouped_intensity = intensity_grouped(self.intensity_file)
+
         avg_time = sum(self.connection_time) / len(self.connection_time)
 
         peak_start = 0
@@ -314,8 +322,8 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         self.peak_start = peak_start
         self.peak_end = peak_end
 
-    """
     # TODO zrobić żeby pokazywało ilość erlandów na wykresie
+    """
     # poniżej jest wzór z wikipedi angielskiej od razu w pythonie
 
     def erlang_b(E, m: int) -> float:
