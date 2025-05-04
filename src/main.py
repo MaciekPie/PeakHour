@@ -19,10 +19,12 @@ from PyQt6.QtGui import QFont
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
-time_file = "../data/time.txt"
+time_file = "Projekty/Github/PeakHour/data/time.txt"  # "../data/time.txt"
 
 
-intensity_file = "../data/intensity.txt"
+intensity_file = (
+    "Projekty/Github/PeakHour/data/intensity.txt"  # "../data/intensity.txt"
+)
 
 
 # TODO domnożyć sobie tabelkę żeby parę dni (6-10)
@@ -84,6 +86,7 @@ def plot_intensity(day_time, intense):
     plt.legend()
     plt.show()
 
+
 # TODO zrobić dynamiczne wybieranie plików do analizy
 # Próby GUI
 class TrafficAnalysisApp(QMainWindow):
@@ -92,11 +95,10 @@ class TrafficAnalysisApp(QMainWindow):
         self.setWindowTitle("Analiza Ruchu Telekomunikacyjnego")
         self.setGeometry(100, 100, 800, 600)
 
-        self.time_file = (
-            "../data/time.txt"
-        )
+        self.time_file = "Projekty/Github/PeakHour/data/time.txt"  # "../data/time.txt"
+
         self.intensity_file = (
-            "../data/intensity.txt"
+            "Projekty/Github/PeakHour/data/intensity.txt"  # "../data/intensity.txt"
         )
 
         self.peak_start = None
@@ -327,7 +329,7 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         self.ax.set_ylabel("Ilość połączeń")
         self.ax.set_title("Intensywność ruchu")
         # TODO zmienić odstępy w siatce na 60 zamiast obecnych 200 dla większej czytelności
-        self.ax.grid(True, which='major', linestyle='-', linewidth=0.75)
+        self.ax.grid(True, which="major", linestyle="-", linewidth=0.75)
         self.canvas.draw()
         self.canvas.setVisible(True)
 
