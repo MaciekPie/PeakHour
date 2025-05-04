@@ -20,14 +20,15 @@ from PyQt6.QtGui import QFont
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
-time_file = (#"Projekty/Github/PeakHour/data/time.txt"
-              "../data/time.txt"
-             )
+time_file = (
+    "Projekty/Github/PeakHour/data/time.txt"
+    # "../data/time.txt"
+)
 
 
 intensity_file = (
-    #"Projekty/Github/PeakHour/data/intensity.txt"
-     "../data/intensity.txt"
+    "Projekty/Github/PeakHour/data/intensity.txt"
+    # "../data/intensity.txt"
 )
 
 
@@ -99,16 +100,16 @@ class TrafficAnalysisApp(QMainWindow):
         self.setWindowTitle("Analiza Ruchu Telekomunikacyjnego")
         self.setGeometry(100, 100, 800, 600)
 
-        #self.time_file = time_file
+        # self.time_file = time_file
 
         self.intensity_file = intensity_file
 
         self.peak_start = None
         self.peak_end = None
 
-        #self.connection_time = load_time_data(self.time_file)
-        #self.day_time, self.intense = load_intensity_data(self.intensity_file)
-        #self.grouped_intensity = intensity_grouped(self.intensity_file)
+        # self.connection_time = load_time_data(self.time_file)
+        # self.day_time, self.intense = load_intensity_data(self.intensity_file)
+        # self.grouped_intensity = intensity_grouped(self.intensity_file)
 
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)  # Ustawienie centralnego widgetu
@@ -129,8 +130,7 @@ class TrafficAnalysisApp(QMainWindow):
 
         btn_analysis = QPushButton("Działanie")
         btn_analysis.clicked.connect(
-            lambda: {self.stacked_widget.setCurrentWidget(self.analysis_page)
-                     }
+            lambda: {self.stacked_widget.setCurrentWidget(self.analysis_page)}
         )
         layout.addWidget(btn_analysis)
 
@@ -171,6 +171,7 @@ class TrafficAnalysisApp(QMainWindow):
 
         self.analysis_page.setLayout(layout)
         self.stacked_widget.addWidget(self.analysis_page)
+
     """
     def open_file_dialog(self):
         dialog = QFileDialog(self)
@@ -294,7 +295,6 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
 
         self.time_file = time_file
         self.open_file_dialog()
-
 
         self.connection_time = load_time_data(self.time_file)
         self.day_time, self.intense = load_intensity_data(self.intensity_file)
