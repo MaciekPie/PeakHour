@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 from PyQt6.QtCore import Qt
-
+from pathlib import Path
 import matplotlib.pyplot as plt
 from PyQt6.QtWidgets import (
     QApplication,
@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
     QStackedWidget,
     QSpacerItem,
     QTextEdit,
-    QFileDialog
+    QFileDialog,
 )
 from PyQt6.QtGui import QFont
 
@@ -128,9 +128,10 @@ class TrafficAnalysisApp(QMainWindow):
 
         btn_analysis = QPushButton("Działanie")
         btn_analysis.clicked.connect(
-            lambda: {self.stacked_widget.setCurrentWidget(self.analysis_page),
-                     self.open_file_dialog()
-                     }
+            lambda: {
+                self.stacked_widget.setCurrentWidget(self.analysis_page),
+                self.open_file_dialog(),
+            }
         )
         layout.addWidget(btn_analysis)
 
@@ -152,13 +153,11 @@ class TrafficAnalysisApp(QMainWindow):
         self.result_label = QLabel("Kliknij przycisk, aby obliczyć ADPQH")
         layout.addWidget(self.result_label)
 
-        self.calc_button = QPushButton("Oblicz ADPQH")
-        self.calc_button.clicked.connect(self.calculate_adpqh)
-        layout.addWidget(self.calc_button)
+        self.calc_active = False
 
-        self.plot_button = QPushButton("Pokaż wykres")
-        self.plot_button.clicked.connect(self.show_plot)
-        layout.addWidget(self.plot_button)
+        self.calc_button = QPushButton("Oblicz ADPQH")
+        self.calc_button.clicked.connect(self.toggle_calculation_and_plot)
+        layout.addWidget(self.calc_button)
 
         self.canvas = FigureCanvas(plt.figure(figsize=(5, 3)))
         layout.addWidget(self.canvas)
@@ -167,7 +166,6 @@ class TrafficAnalysisApp(QMainWindow):
 
         back_button = QPushButton("Wróć")
         back_button.clicked.connect(
-
             lambda: self.stacked_widget.setCurrentWidget(self.main_page)
         )
         layout.addWidget(back_button)
@@ -177,7 +175,9 @@ class TrafficAnalysisApp(QMainWindow):
 
     def open_file_dialog(self):
         dialog = QFileDialog(self)
-        dialog.setDirectory(r'C:\Users\Lenovo\PycharmProjects\TeoriaRuchuAleDziała\PeakHour\data')
+        dialog.setDirectory(
+            r"C:\Users\Lenovo\PycharmProjects\TeoriaRuchuAleDziała\PeakHour\data"
+        )
         dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
         dialog.setNameFilter("Text (*.txt)")
         dialog.setViewMode(QFileDialog.ViewMode.List)
@@ -191,7 +191,7 @@ class TrafficAnalysisApp(QMainWindow):
             self,
             "Wybierz plik",
             "C:\\Users\\Lenovo\\PycharmProjects\\TeoriaRuchuAleDziała\\PeakHour\\data",
-            "Text File (*.txt)"
+            "Text File (*.txt)",
         )
         if filename:
             path = Path(filename)
@@ -259,6 +259,21 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
 
         self.education_page.setLayout(layout)
         self.stacked_widget.addWidget(self.education_page)
+
+    def toggle_calculation_and_plot(self):
+        if self.calc_active:
+            # Cofnij obliczenia i schowaj wykres
+            self.result_label.setText("Kliknij przycisk, aby obliczyć ADPQH")
+            self.peak_start = None
+            self.peak_end = None
+            self.canvas.setVisible(False)
+        else:
+            # Oblicz i pokaż wykres
+            self.calculate_adpqh()
+            self.show_plot()
+            self.canvas.setVisible(True)
+
+        self.calc_active = not self.calc_active
 
     def calculate_adpqh(self):
         """Oblicza ADPQH i wyświetla wynik."""
