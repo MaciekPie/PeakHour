@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
     QStackedWidget,
     QSpacerItem,
     QTextEdit,
+    QFileDialog
 )
 from PyQt6.QtGui import QFont
 
@@ -127,7 +128,9 @@ class TrafficAnalysisApp(QMainWindow):
 
         btn_analysis = QPushButton("Działanie")
         btn_analysis.clicked.connect(
-            lambda: self.stacked_widget.setCurrentWidget(self.analysis_page)
+            lambda: {self.stacked_widget.setCurrentWidget(self.analysis_page),
+                     self.open_file_dialog()
+                     }
         )
         layout.addWidget(btn_analysis)
 
@@ -164,6 +167,7 @@ class TrafficAnalysisApp(QMainWindow):
 
         back_button = QPushButton("Wróć")
         back_button.clicked.connect(
+
             lambda: self.stacked_widget.setCurrentWidget(self.main_page)
         )
         layout.addWidget(back_button)
@@ -171,33 +175,29 @@ class TrafficAnalysisApp(QMainWindow):
         self.analysis_page.setLayout(layout)
         self.stacked_widget.addWidget(self.analysis_page)
 
+    def open_file_dialog(self):
+        dialog = QFileDialog(self)
+        dialog.setDirectory(r'C:\Users\Lenovo\PycharmProjects\TeoriaRuchuAleDziała\PeakHour\data')
+        dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
+        dialog.setNameFilter("Text (*.txt)")
+        dialog.setViewMode(QFileDialog.ViewMode.List)
+        if dialog.exec():
+            filenames = dialog.selectedFiles()
+            if filenames:
+                self.file_list.addItems([str(Path(filename)) for filename in filenames])
+
+    def open_file_dialog(self):
+        filename, ok = QFileDialog.getOpenFileName(
+            self,
+            "Wybierz plik",
+            "C:\\Users\\Lenovo\\PycharmProjects\\TeoriaRuchuAleDziała\\PeakHour\\data",
+            "Text File (*.txt)"
+        )
+        if filename:
+            path = Path(filename)
+            self.filename_edit.setText(str(path))
+
     def init_education_page(self):
-        """
-        self.education_page = QWidget()
-        layout = QVBoxLayout()
-        QVBoxLayout.setSpacing(layout, 0)
-        label = QLabel("Teoria i wzory dotyczące analizy ruchu")
-        label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
-        label.setFont(QFont("Arial", 17))
-        QVBoxLayout.setSpacing(layout, 0)
-        layout.addWidget(label)
-
-        label2 = QLabel(
-            "Godzina Największego Ruchu GNR – jest to okres kolejnych 60 minut w ciągu doby, podczas którego średnie natężenie ruchu jest największe. Okres, określający GNR jak i natężenie ruchu podczas GNR zmieniają się w poszczególnych dniach. Zamiast kolejnych 60 minut GNR często określa się (w systemach pomiarowych) dla czterech kolejnych kwadransów"
-        )
-        label2.setAlignment(Qt.AlignmentFlag.AlignTop)
-        label2.setWordWrap(True)
-        layout.addWidget(label2)
-        QVBoxLayout.addSpacing(layout, 400)
-
-        back_button = QPushButton("Wróć")
-        back_button.clicked.connect(
-            lambda: self.stacked_widget.setCurrentWidget(self.main_page)
-        )
-        layout.addWidget(back_button)
-
-        self.education_page.setLayout(layout)
-        self.stacked_widget.addWidget(self.education_page)"""
 
         self.education_page = QWidget()
         layout = QVBoxLayout()
