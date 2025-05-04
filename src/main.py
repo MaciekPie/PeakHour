@@ -21,14 +21,14 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 time_file = (
-    "Projekty/Github/PeakHour/data/time.txt"
-    # "../data/time.txt"
+    # "Projekty/Github/PeakHour/data/time.txt"
+     "../data/time.txt"
 )
 
 
 intensity_file = (
-    "Projekty/Github/PeakHour/data/intensity.txt"
-    # "../data/intensity.txt"
+    #"Projekty/Github/PeakHour/data/intensity.txt"
+     "../data/intensity.txt"
 )
 
 
@@ -92,7 +92,7 @@ def plot_intensity(day_time, intense):
     plt.show()
 
 
-# TODO zrobić dynamiczne wybieranie plików do analizy
+
 # Próby GUI
 class TrafficAnalysisApp(QMainWindow):
     def __init__(self):
@@ -145,6 +145,7 @@ class TrafficAnalysisApp(QMainWindow):
 
     def init_analysis_page(self):
         # todo dorobic równoległe wykresy dla innych dni i metod
+        # todo zrobić wykresy pod sobą i podzielić na tcbh i adph żeby były obok siebie
 
         self.analysis_page = QWidget()
         layout = QVBoxLayout()
@@ -154,14 +155,14 @@ class TrafficAnalysisApp(QMainWindow):
 
         self.calc_active = False
 
-        self.calc_button = QPushButton("Oblicz ADPQH")
-        self.calc_button.clicked.connect(self.toggle_calculation_and_plot)
-        layout.addWidget(self.calc_button)
-
-        self.canvas = FigureCanvas(plt.figure(figsize=(5, 3)))
+        self.canvas = FigureCanvas(plt.figure(figsize=(5, 4)))
         layout.addWidget(self.canvas)
         self.ax = self.canvas.figure.add_subplot(111)
         self.canvas.setVisible(False)
+
+        self.calc_button = QPushButton("Oblicz ADPQH")
+        self.calc_button.clicked.connect(self.toggle_calculation_and_plot)
+        layout.addWidget(self.calc_button)
 
         back_button = QPushButton("Wróć")
         back_button.clicked.connect(
