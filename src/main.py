@@ -3,6 +3,7 @@ import numpy as np
 from PyQt6.QtCore import Qt
 from pathlib import Path
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -21,18 +22,17 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 time_file = (
-    "Projekty/Github/PeakHour/data/time.txt"
-    # "../data/time.txt"
+    # "Projekty/Github/PeakHour/data/time.txt"
+     "../data/time.txt"
 )
 
 
 intensity_file = (
-    "Projekty/Github/PeakHour/data/intensity.txt"
-    # "../data/intensity.txt"
+    #"Projekty/Github/PeakHour/data/intensity.txt"
+     "../data/intensity.txt"
 )
 
 
-# TODO domnożyć sobie tabelkę żeby parę dni (6-10)
 # TODO wiele (2){im więcej tym lepiej} metod i pokazac różnice między nimi
 # TODO dodać slider w gui oraz opcję wyświetlania wykresów z wielu danych
 # TODO i cyk do execa
@@ -185,7 +185,8 @@ class TrafficAnalysisApp(QMainWindow):
 
     """
     def open_file_dialog(self):
-        filename, ok = QFileDialog.getOpenFileName(
+
+        filename, ok = QFileDialog.getOpenFileNames(
             self,
             "Wybierz plik z intensywnością",
             "C:\\Users\\Lenovo\\PycharmProjects\\TeoriaRuchuAleDziała\\PeakHour\\data",
@@ -268,6 +269,7 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
             self.canvas.setVisible(False)
         else:
             # Oblicz i pokaż wykres
+
             self.calculate_adpqh()
             self.show_plot()
             self.canvas.setVisible(True)
@@ -352,9 +354,10 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
             intense = self.all_intense[i]
             peak_start, peak_end = self.all_peak_ranges[i]
 
-            self.ax.plot(day_time, intense, label=f"Dzień {i+1}")
-            self.ax.axvline(x=peak_start, color="red", linestyle="--")
-            self.ax.axvline(x=peak_end, color="red", linestyle="--")
+            line, = self.ax.plot(day_time, intense, label=f"Dzień {i+1}", alpha=0.62)
+            colour=line.get_color()
+            self.ax.axvline(x=peak_start, linestyle="--", color=colour)
+            self.ax.axvline(x=peak_end, linestyle="--", color=colour)
 
         self.ax.set_xlabel("Czas w ciągu doby [min]")
         self.ax.set_ylabel("Ilość połączeń")
