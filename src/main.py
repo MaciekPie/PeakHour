@@ -345,6 +345,11 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         return 1.0 / inv_b
     """
 
+
+
+    #odnieść się do dokumentów standaryzacyjnych w metodach liczenia gnr
+    #opcjonalnie link do dokumentów to wyjaśniających
+    #następny update na 05.06
     def show_plot(self):
         """Tworzy wykres intensywności ruchu."""
         self.ax.clear()
