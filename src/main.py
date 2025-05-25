@@ -333,6 +333,43 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         self.peak_end = peak_end
         """
 
+    def calculate_tcbh(self):
+        self.open_file_dialog()
+        self.connection_time = load_time_data(self.time_file)
+
+        self.all_day_time = []
+        self.all_intense = []
+        self.all_peak_ranges = []
+        temp_group={}
+        n=0
+        for path in self.intensity_files:
+            if (n==0):
+                day_time, intense = load_intensity_data(path)
+                grouped = intensity_grouped(path)
+                n+=1
+            else:
+                temp_group = intensity_grouped(path)
+                for i in temp_group:
+                    grouped[i] = (grouped[i] + temp_group[i])
+        peak_start = 0
+        interval = 60
+        biggest = 0
+        for counter in range(1, 1380):
+            grouped=grouped/len(self.intensity_files)
+            sum_intense = sum(
+                grouped.get(h, 0) for h in range(counter, counter + interval)
+            )
+            if sum_intense > biggest:
+                biggest = sum_intense
+                peak_start = counter
+        peak_end = peak_start + interval
+
+        self.all_peak_ranges.append((peak_start, peak_end))
+
+
+
+
+
     # TODO zrobić żeby pokazywało ilość erlandów na wykresie
     """
     # poniżej jest wzór z wikipedi angielskiej od razu w pythonie
@@ -344,8 +381,6 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
             inv_b = 1.0 + inv_b * j / E
         return 1.0 / inv_b
     """
-
-
 
     #odnieść się do dokumentów standaryzacyjnych w metodach liczenia gnr
     #opcjonalnie link do dokumentów to wyjaśniających
