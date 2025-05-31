@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt
 from pathlib import Path
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from matplotlib.figure import Figure
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -15,6 +16,7 @@ from PyQt6.QtWidgets import (
     QSpacerItem,
     QTextEdit,
     QFileDialog,
+    QFrame,
 )
 from PyQt6.QtGui import QFont
 
@@ -22,14 +24,14 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 time_file = (
-    # "Projekty/Github/PeakHour/data/time.txt"
-     "../data/time.txt"
+    "Projekty/Github/PeakHour/data/time.txt"
+    # "../data/time.txt"
 )
 
 
 intensity_file = (
-    #"Projekty/Github/PeakHour/data/intensity.txt"
-     "../data/intensity.txt"
+    "Projekty/Github/PeakHour/data/intensity.txt"
+    # "../data/intensity.txt"
 )
 
 
@@ -155,11 +157,34 @@ class TrafficAnalysisApp(QMainWindow):
 
         self.calc_active = False
 
+        """
         self.canvas = FigureCanvas(plt.figure(figsize=(5, 4)))
         layout.addWidget(self.canvas)
         self.ax = self.canvas.figure.add_subplot(111)
         self.canvas.setVisible(False)
+        """
+        self.figure = Figure(figsize=(6, 4))
+        self.canvas = FigureCanvas(self.figure)
+        self.ax = self.figure.add_subplot(111)
+        # layout.addWidget(self.canvas)
+        # self.canvas.setVisible(False)
 
+        # Otocz canvas ramką (opcjonalne)
+        self.canvas_frame = QFrame()
+        canvas_layout = QVBoxLayout()
+        canvas_layout.addWidget(self.canvas)
+        self.canvas_frame.setLayout(canvas_layout)
+        layout.addWidget(self.canvas_frame)
+
+        self.canvas.setVisible(False)
+
+        # === Osobne wykresy pod spodem ===
+        self.daily_charts_layout = QVBoxLayout()
+        self.daily_charts_widget = QWidget()
+        self.daily_charts_widget.setLayout(self.daily_charts_layout)
+        layout.addWidget(self.daily_charts_widget)
+
+        # === Przyciski ===
         self.calc_button = QPushButton("Oblicz ADPQH")
         self.calc_button.clicked.connect(self.toggle_calculation_and_plot)
         layout.addWidget(self.calc_button)
@@ -182,20 +207,6 @@ class TrafficAnalysisApp(QMainWindow):
         )
         if filenames:
             self.intensity_files = [Path(fname) for fname in filenames]
-
-    """
-    def open_file_dialog(self):
-
-        filename, ok = QFileDialog.getOpenFileNames(
-            self,
-            "Wybierz plik z intensywnością",
-            "C:\\Users\\Lenovo\\PycharmProjects\\TeoriaRuchuAleDziała\\PeakHour\\data",
-            "Text File (*.txt)",
-        )
-        if filename:
-            path = Path(filename)
-            self.intensity_file = str(path)
-    """
 
     def init_education_page(self):
 
@@ -266,13 +277,22 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
             self.result_label.setText("Kliknij przycisk, aby obliczyć ADPQH")
             self.peak_start = None
             self.peak_end = None
+
             self.canvas.setVisible(False)
+            self.daily_charts_widget.setVisible(False)
+
+            # Usunięcie zawartości layoutu z wykresami dziennymi
+            while self.daily_charts_layout.count():
+                child = self.daily_charts_layout.takeAt(0)
+                if child.widget():
+                    child.widget().deleteLater()
+
         else:
             # Oblicz i pokaż wykres
-
             self.calculate_adpqh()
             self.show_plot()
             self.canvas.setVisible(True)
+            self.daily_charts_widget.setVisible(True)
 
         self.calc_active = not self.calc_active
 
@@ -282,6 +302,8 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         self.open_file_dialog()
 
         self.connection_time = load_time_data(self.time_file)
+        avg_time = sum(self.connection_time) / len(self.connection_time)
+
         # self.day_time, self.intense = load_intensity_data(self.intensity_file)
         # self.grouped_intensity = intensity_grouped(self.intensity_file)
 
@@ -289,7 +311,14 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         self.all_intense = []
         self.all_peak_ranges = []
 
-        for path in self.intensity_files:
+        summary_text = f"Średni czas trwania połączenia: {avg_time:.2f} s\n\n"
+
+        total_peak_start = 0
+        total_peak_end = 0
+
+        for i, path in enumerate(
+            self.intensity_files
+        ):  # for path in self.intensity_files:
             day_time, intense = load_intensity_data(path)
             grouped = intensity_grouped(path)
 
@@ -305,9 +334,30 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
                     peak_start = counter
             peak_end = peak_start + interval
 
+            total_peak_start += peak_start
+            total_peak_end += peak_end
+
             self.all_day_time.append(day_time)
             self.all_intense.append(intense)
             self.all_peak_ranges.append((peak_start, peak_end))
+
+            summary_text += (
+                f"Dzień {i+1}: największy ruch od "
+                f"{peak_start // 60:02d}:{peak_start % 60:02d} "
+                f"do {peak_end // 60:02d}:{peak_end % 60:02d}\n"
+            )
+
+        num_files = len(self.intensity_files)
+        if num_files > 0:
+            avg_peak_start = total_peak_start // num_files
+            avg_peak_end = total_peak_end // num_files
+            summary_text += (
+                f"\nUśredniona GNR: {avg_peak_start // 60:02d}:{avg_peak_start % 60:02d} - "
+                f"{avg_peak_end // 60:02d}:{avg_peak_end % 60:02d}"
+            )
+
+        self.result_label.setText(summary_text)
+        # self.show_plot()
 
         """
         avg_time = sum(self.connection_time) / len(self.connection_time)
@@ -340,22 +390,22 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         self.all_day_time = []
         self.all_intense = []
         self.all_peak_ranges = []
-        temp_group={}
-        n=0
+        temp_group = {}
+        n = 0
         for path in self.intensity_files:
-            if (n==0):
+            if n == 0:
                 day_time, intense = load_intensity_data(path)
                 grouped = intensity_grouped(path)
-                n+=1
+                n += 1
             else:
                 temp_group = intensity_grouped(path)
                 for i in temp_group:
-                    grouped[i] = (grouped[i] + temp_group[i])
+                    grouped[i] = grouped[i] + temp_group[i]
         peak_start = 0
         interval = 60
         biggest = 0
         for counter in range(1, 1380):
-            grouped=grouped/len(self.intensity_files)
+            grouped = grouped / len(self.intensity_files)
             sum_intense = sum(
                 grouped.get(h, 0) for h in range(counter, counter + interval)
             )
@@ -365,10 +415,6 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         peak_end = peak_start + interval
 
         self.all_peak_ranges.append((peak_start, peak_end))
-
-
-
-
 
     # TODO zrobić żeby pokazywało ilość erlandów na wykresie
     """
@@ -382,20 +428,22 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         return 1.0 / inv_b
     """
 
-    #odnieść się do dokumentów standaryzacyjnych w metodach liczenia gnr
-    #opcjonalnie link do dokumentów to wyjaśniających
-    #następny update na 05.06
+    # odnieść się do dokumentów standaryzacyjnych w metodach liczenia gnr
+    # opcjonalnie link do dokumentów to wyjaśniających
+    # następny update na 05.06
+
     def show_plot(self):
-        """Tworzy wykres intensywności ruchu."""
+        """Tworzy wykres zbiorczy oraz osobne wykresy dla każdego dnia."""
         self.ax.clear()
 
+        # Wykres zbiorczy
         for i in range(len(self.all_day_time)):
             day_time = self.all_day_time[i]
             intense = self.all_intense[i]
             peak_start, peak_end = self.all_peak_ranges[i]
 
-            line, = self.ax.plot(day_time, intense, label=f"Dzień {i+1}", alpha=0.62)
-            colour=line.get_color()
+            (line,) = self.ax.plot(day_time, intense, label=f"Dzień {i+1}", alpha=0.62)
+            colour = line.get_color()
             self.ax.axvline(x=peak_start, linestyle="--", color=colour)
             self.ax.axvline(x=peak_end, linestyle="--", color=colour)
 
@@ -406,6 +454,34 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         self.ax.legend()
         self.canvas.draw()
         self.canvas.setVisible(True)
+
+        # === Osobne wykresy ===
+        # Czyść poprzednie wykresy
+        while self.daily_charts_layout.count():
+            child = self.daily_charts_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        # Dodaj nowe osobne wykresy
+        for i in range(len(self.all_day_time)):
+            fig = Figure(figsize=(6, 3))
+            ax = fig.add_subplot(111)
+            canvas = FigureCanvas(fig)
+
+            day_time = self.all_day_time[i]
+            intense = self.all_intense[i]
+            peak_start, peak_end = self.all_peak_ranges[i]
+
+            ax.plot(day_time, intense, label=f"Dzień {i+1}")
+            ax.axvline(x=peak_start, linestyle="--", color="red", label="Początek GNR")
+            ax.axvline(x=peak_end, linestyle="--", color="red", label="Koniec GNR")
+            ax.set_title(f"Dzień {i+1}")
+            ax.set_xlabel("Minuty")
+            ax.set_ylabel("Intensywność")
+            ax.grid(True)
+            ax.legend()
+
+            self.daily_charts_layout.addWidget(canvas)
 
         """
         self.ax.plot(self.day_time, self.intense, "b")
@@ -428,53 +504,6 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         self.canvas.setVisible(True)
         """
 
-
-"""
-time = load_time_data(time_file)
-day_time, intense = load_intensity_data(intensity_file)
-
-
-avg_time = sum(time) / len(time)
-print(f"Średni czas trwania połączenia: {avg_time:.2f} s")
-
-
-# Obliczenia metodą ADPQH i FDMH
-calculate_adpqh(day_time, intense)
-
-
-# Wykres intensywności
-plot_intensity(day_time, intense)
-"""
-
-
-"""
-quarter_intensity = np.zeros(96)
-
-for minute, intensity in zip(day_time, intense):
-    m = minute // 15
-    quarter_intensity[m] += intensity
-
-
-quarter_avg = quarter_intensity / 15
-
-peak_q = np.argmax(quarter_avg)
-peak_q_start = peak_q * 15
-peak_q_end = peak_q_start + 15
-
-#print(f"Kwadrans największego ruchu występuje między (ADPQH): {peak_q_start/60}-{peak_q_end/60} h")
-"""
-
-
-"""
-plt.plot(day_time, intense, "b")
-plt.plot(day_time, intense)
-
-plt.xlabel("Czas w ciągu doby [min]")
-plt.ylabel("Ilość połączeń w danej minucie")
-
-plt.grid()
-plt.show()
-"""
 
 # Uruchomienie aplikacji
 if __name__ == "__main__":
