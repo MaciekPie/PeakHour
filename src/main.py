@@ -278,6 +278,11 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
             self.peak_start = None
             self.peak_end = None
 
+            # DODANE
+            self.all_day_time.clear()
+            self.all_intense.clear()
+            self.all_peak_ranges.clear()
+
             self.canvas.setVisible(False)
             self.daily_charts_widget.setVisible(False)
 
@@ -301,15 +306,19 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
         self.time_file = time_file
         self.open_file_dialog()
 
+        if not self.intensity_files:
+            self.result_label.setText("Nie wybrano żadnych plików.")
+            return  # zakończ jeśli nie ma plików
+
+        self.all_day_time = []
+        self.all_intense = []
+        self.all_peak_ranges = []
+
         self.connection_time = load_time_data(self.time_file)
         avg_time = sum(self.connection_time) / len(self.connection_time)
 
         # self.day_time, self.intense = load_intensity_data(self.intensity_file)
         # self.grouped_intensity = intensity_grouped(self.intensity_file)
-
-        self.all_day_time = []
-        self.all_intense = []
-        self.all_peak_ranges = []
 
         summary_text = f"Średni czas trwania połączenia: {avg_time:.2f} s\n\n"
 
