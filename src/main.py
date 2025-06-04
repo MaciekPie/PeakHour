@@ -13,10 +13,11 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QStackedWidget,
-    QSpacerItem,
     QTextEdit,
     QFileDialog,
     QFrame,
+    QScrollArea,
+    QSizePolicy
 )
 from PyQt6.QtGui import QFont
 
@@ -24,14 +25,14 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 time_file = (
-    "Projekty/Github/PeakHour/data/time.txt"
-    # "../data/time.txt"
+    #"Projekty/Github/PeakHour/data/time.txt"
+    "../data/time.txt"
 )
 
 
 intensity_file = (
-    "Projekty/Github/PeakHour/data/intensity.txt"
-    # "../data/intensity.txt"
+    #"Projekty/Github/PeakHour/data/intensity.txt"
+     "../data/intensity.txt"
 )
 
 
@@ -81,25 +82,12 @@ def intensity_grouped(filepath):
                 combined_intensity[temp_time] = temp_intese
     return combined_intensity
 
-
-def plot_intensity(day_time, intense):
-    """Tworzy wykres intensywności ruchu"""
-    plt.figure(figsize=(10, 5))
-    plt.plot(day_time, intense, "b", label="Intensywność ruchu")
-    plt.xlabel("Czas w ciągu doby [min]")
-    plt.ylabel("Ilość połączeń")
-    plt.title("Intensywność ruchu w ciągu doby")
-    plt.grid()
-    plt.legend()
-    plt.show()
-
-
 # Próby GUI
 class TrafficAnalysisApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Analiza Ruchu Telekomunikacyjnego")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(500, 40, 1000, 1000)
 
         # self.time_file = time_file
 
@@ -152,7 +140,7 @@ class TrafficAnalysisApp(QMainWindow):
         self.analysis_page = QWidget()
         layout = QVBoxLayout()
 
-        self.result_label = QLabel("Kliknij przycisk, aby obliczyć ADPQH")
+        self.result_label = QLabel("Kliknij przycisk, aby wybrać metodę obliczania GNR")
         layout.addWidget(self.result_label)
 
         self.calc_active = False
@@ -163,8 +151,10 @@ class TrafficAnalysisApp(QMainWindow):
         self.ax = self.canvas.figure.add_subplot(111)
         self.canvas.setVisible(False)
         """
-        self.figure = Figure(figsize=(6, 4))
+        self.figure = Figure(figsize=(9, 4))
         self.canvas = FigureCanvas(self.figure)
+        self.canvas.setFixedSize(900, 400)  # stały rozmiar głównego wykresu
+        self.canvas.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.ax = self.figure.add_subplot(111)
         # layout.addWidget(self.canvas)
         # self.canvas.setVisible(False)
@@ -174,7 +164,7 @@ class TrafficAnalysisApp(QMainWindow):
         canvas_layout = QVBoxLayout()
         canvas_layout.addWidget(self.canvas)
         self.canvas_frame.setLayout(canvas_layout)
-        layout.addWidget(self.canvas_frame)
+        #layout.addWidget(self.canvas_frame)
 
         self.canvas.setVisible(False)
 
@@ -182,7 +172,21 @@ class TrafficAnalysisApp(QMainWindow):
         self.daily_charts_layout = QVBoxLayout()
         self.daily_charts_widget = QWidget()
         self.daily_charts_widget.setLayout(self.daily_charts_layout)
-        layout.addWidget(self.daily_charts_widget)
+        #layout.addWidget(self.daily_charts_widget)
+
+        # ——— QScrollArea OBJĘTA CAŁOŚCIĄ WYKRESÓW ———
+        self.scroll_area = QScrollArea()
+        scroll_contents = QWidget()
+        scroll_layout = QVBoxLayout()
+        scroll_layout.addWidget(self.canvas_frame)
+        scroll_layout.addWidget(self.daily_charts_widget)
+        scroll_contents.setLayout(scroll_layout)
+
+        self.scroll_area.setWidget(scroll_contents)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setVisible(False)
+
+        layout.addWidget(self.scroll_area)
 
         # === Przyciski ===
         self.calc_button = QPushButton("Oblicz ADPQH")
@@ -283,8 +287,9 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
             self.all_intense.clear()
             self.all_peak_ranges.clear()
 
-            self.canvas.setVisible(False)
-            self.daily_charts_widget.setVisible(False)
+            #self.canvas.setVisible(False)
+            #self.daily_charts_widget.setVisible(False)
+            self.scroll_area.setVisible(False)
 
             # Usunięcie zawartości layoutu z wykresami dziennymi
             while self.daily_charts_layout.count():
@@ -296,8 +301,9 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
             # Oblicz i pokaż wykres
             self.calculate_adpqh()
             self.show_plot()
-            self.canvas.setVisible(True)
-            self.daily_charts_widget.setVisible(True)
+            #self.canvas.setVisible(True)
+            #self.daily_charts_widget.setVisible(True)
+            self.scroll_area.setVisible(True)
 
         self.calc_active = not self.calc_active
 
@@ -473,10 +479,11 @@ FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
 
         # Dodaj nowe osobne wykresy
         for i in range(len(self.all_day_time)):
-            fig = Figure(figsize=(6, 3))
+            fig = Figure(figsize=(9, 4))
             ax = fig.add_subplot(111)
             canvas = FigureCanvas(fig)
-
+            canvas.setFixedSize(900, 400)  # stały rozmiar każdego mniejszego wykresu
+            canvas.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
             day_time = self.all_day_time[i]
             intense = self.all_intense[i]
             peak_start, peak_end = self.all_peak_ranges[i]
