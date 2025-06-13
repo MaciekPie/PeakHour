@@ -35,7 +35,8 @@ intensity_file = (
      "../data/intensity.txt"
 )
 
-
+#todo wartości natężenia ruchu w tej godzinie
+#todo deadline: 25.06.2025 !!!!
 # TODO wiele (2){im więcej tym lepiej} metod i pokazac różnice między nimi
 # TODO dodać slider w gui oraz opcję wyświetlania wykresów z wielu danych
 # TODO i cyk do execa
@@ -87,7 +88,7 @@ class TrafficAnalysisApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Analiza Ruchu Telekomunikacyjnego")
-        self.setGeometry(500, 40, 1000, 1000)
+        self.setGeometry(300, 40, 1000, 750)
 
         # self.time_file = time_file
 
@@ -248,19 +249,19 @@ GNR = argmax<sub>t∈[0,1380]</sub> ∑<sub>i=0</sub><sup>59</sup> A(t + i)
             <pre>
 ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15q + i)
             </pre>
-
-            <h3>📌 FDMP – Fixed Duration Max Peak</h3>
-            <p>
-            FDMP to metoda podobna do GNR, ale analizująca <b>dowolny ustalony interwał</b> (np. 30 minut).
-            </p>
-            <pre>
-FDMP = argmax<sub>t</sub> ∑<sub>i=0</sub><sup>D-1</sup> A(t + i)
-            gdzie D = długość okna (np. 30 min)
-            </pre>
              
              <h3>📌 TCBH - Time-Consistent Busy Hour</h3>
              <p>
              Metoda polegająca na ustaleniu, <b> na podstawie danych z wielu dni </b>, kiedy średnia ilość połączeń jest największa. 
+             </p>
+             
+             <h3>📌 Linki do dokumentów standaryzacyjnych</h3>
+             <p>
+             Definicje metod licznia GNR:         <b> https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-E.500-198811-S!!PDF-E&type=items </b>
+             </p>
+             
+             <p>
+             Definicje pojęć telekomunikacyjnych:   <b> https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-E.600-198811-S!!PDF-E&type=items </b>
              </p>
             """
         )
