@@ -23,6 +23,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 time_file = (
+    # "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
+    "../data/time.txt"
     "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
     # "../data/time.txt"
     ""
@@ -30,8 +32,8 @@ time_file = (
 
 
 intensity_file = (
-    "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intense.txt"
-    # "../data/intensity.txt"
+    # "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intense.txt"
+    "../data/intensity.txt"
 )
 
 # todo wartości natężenia ruchu w tej godzinie
@@ -190,7 +192,7 @@ class TrafficAnalysisApp(QMainWindow):
         filenames, _ = QFileDialog.getOpenFileNames(
             self,
             "Wybierz pliki z intensywnością",
-            "C:\\Users\\Lenovo\\PycharmProjects\\TeoriaRuchuAleDziała\\PeakHour\\data",
+            "..\\data",
             "Text File (*.txt)",
         )
         if filenames:
@@ -367,6 +369,7 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             )
 
         self.result_label.setText(summary_text)
+        # self.show_plot()
 
     def calculate_tcbh(self):
         self.open_file_dialog()
