@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QFrame,
     QScrollArea,
-    QSizePolicy
+    QSizePolicy,
 )
 from PyQt6.QtGui import QFont
 
@@ -25,18 +25,18 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 time_file = (
-    #"Projekty/Github/PeakHour/data/time.txt"
-    "../data/time.txt"
+    "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
+    # "../data/time.txt"
 )
 
 
 intensity_file = (
-    #"Projekty/Github/PeakHour/data/intensity.txt"
-     "../data/intensity.txt"
+    "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intense.txt"
+    # "../data/intensity.txt"
 )
 
-#todo wartości natężenia ruchu w tej godzinie
-#todo deadline: 25.06.2025 !!!!
+# todo wartości natężenia ruchu w tej godzinie
+# todo deadline: 25.06.2025 !!!!
 # TODO wiele (2){im więcej tym lepiej} metod i pokazac różnice między nimi
 # TODO dodać slider w gui oraz opcję wyświetlania wykresów z wielu danych
 # TODO i cyk do execa
@@ -83,12 +83,15 @@ def intensity_grouped(filepath):
                 combined_intensity[temp_time] = temp_intese
     return combined_intensity
 
+
 # Próby GUI
 class TrafficAnalysisApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Analiza Ruchu Telekomunikacyjnego")
+        # screen = app.primaryScreen().availableGeometry()
         self.setGeometry(300, 40, 1000, 750)
+        # self.setGeometry(screen)
 
         # self.time_file = time_file
 
@@ -165,7 +168,7 @@ class TrafficAnalysisApp(QMainWindow):
         canvas_layout = QVBoxLayout()
         canvas_layout.addWidget(self.canvas)
         self.canvas_frame.setLayout(canvas_layout)
-        #layout.addWidget(self.canvas_frame)
+        # layout.addWidget(self.canvas_frame)
 
         self.canvas.setVisible(False)
 
@@ -173,7 +176,7 @@ class TrafficAnalysisApp(QMainWindow):
         self.daily_charts_layout = QVBoxLayout()
         self.daily_charts_widget = QWidget()
         self.daily_charts_widget.setLayout(self.daily_charts_layout)
-        #layout.addWidget(self.daily_charts_widget)
+        # layout.addWidget(self.daily_charts_widget)
 
         # ——— QScrollArea OBJĘTA CAŁOŚCIĄ WYKRESÓW ———
         self.scroll_area = QScrollArea()
@@ -288,8 +291,8 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             self.all_intense.clear()
             self.all_peak_ranges.clear()
 
-            #self.canvas.setVisible(False)
-            #self.daily_charts_widget.setVisible(False)
+            # self.canvas.setVisible(False)
+            # self.daily_charts_widget.setVisible(False)
             self.scroll_area.setVisible(False)
 
             # Usunięcie zawartości layoutu z wykresami dziennymi
@@ -302,8 +305,8 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             # Oblicz i pokaż wykres
             self.calculate_adpqh()
             self.show_plot()
-            #self.canvas.setVisible(True)
-            #self.daily_charts_widget.setVisible(True)
+            # self.canvas.setVisible(True)
+            # self.daily_charts_widget.setVisible(True)
             self.scroll_area.setVisible(True)
 
         self.calc_active = not self.calc_active
@@ -526,5 +529,5 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = TrafficAnalysisApp()
-    window.show()
+    window.showMaximized()
     sys.exit(app.exec())
