@@ -25,6 +25,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 time_file = (
     "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
     # "../data/time.txt"
+    ""
 )
 
 
@@ -86,21 +87,16 @@ class TrafficAnalysisApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Analiza Ruchu Telekomunikacyjnego")
-        # screen = app.primaryScreen().availableGeometry()
         self.setGeometry(300, 40, 1000, 750)
-        # self.setGeometry(screen)
 
-        # self.time_file = time_file
-
-        # self.intensity_file = intensity_file
         self.intensity_files = []
+
+        self.all_day_time = []
+        self.all_intense = []
+        self.all_peak_ranges = []
 
         self.peak_start = None
         self.peak_end = None
-
-        # self.connection_time = load_time_data(self.time_file)
-        # self.day_time, self.intense = load_intensity_data(self.intensity_file)
-        # self.grouped_intensity = intensity_grouped(self.intensity_file)
 
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)  # Ustawienie centralnego widgetu
@@ -135,9 +131,6 @@ class TrafficAnalysisApp(QMainWindow):
         self.stacked_widget.addWidget(self.main_page)
 
     def init_analysis_page(self):
-        # todo dorobic równoległe wykresy dla innych dni i metod
-        # todo zrobić wykresy pod sobą i podzielić na tcbh i adph żeby były obok siebie
-
         self.analysis_page = QWidget()
         layout = QVBoxLayout()
 
@@ -146,26 +139,17 @@ class TrafficAnalysisApp(QMainWindow):
 
         self.calc_active = False
 
-        """
-        self.canvas = FigureCanvas(plt.figure(figsize=(5, 4)))
-        layout.addWidget(self.canvas)
-        self.ax = self.canvas.figure.add_subplot(111)
-        self.canvas.setVisible(False)
-        """
         self.figure = Figure(figsize=(9, 4))
         self.canvas = FigureCanvas(self.figure)
         self.canvas.setFixedSize(900, 400)  # stały rozmiar głównego wykresu
         self.canvas.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.ax = self.figure.add_subplot(111)
-        # layout.addWidget(self.canvas)
-        # self.canvas.setVisible(False)
 
         # Otocz canvas ramką (opcjonalne)
         self.canvas_frame = QFrame()
         canvas_layout = QVBoxLayout()
         canvas_layout.addWidget(self.canvas)
         self.canvas_frame.setLayout(canvas_layout)
-        # layout.addWidget(self.canvas_frame)
 
         self.canvas.setVisible(False)
 
@@ -173,7 +157,6 @@ class TrafficAnalysisApp(QMainWindow):
         self.daily_charts_layout = QVBoxLayout()
         self.daily_charts_widget = QWidget()
         self.daily_charts_widget.setLayout(self.daily_charts_layout)
-        # layout.addWidget(self.daily_charts_widget)
 
         # ——— QScrollArea OBJĘTA CAŁOŚCIĄ WYKRESÓW ———
         self.scroll_area = QScrollArea()
@@ -293,8 +276,6 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
                 if hasattr(self, attr):
                     getattr(self, attr).clear()
 
-            # self.canvas.setVisible(False)
-            # self.daily_charts_widget.setVisible(False)
             self.scroll_area.setVisible(False)
 
             # Usunięcie zawartości layoutu z wykresami dziennymi
@@ -307,8 +288,6 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             # Oblicz i pokaż wykres
             self.calculate_adpqh()
             self.show_plot()
-            # self.canvas.setVisible(True)
-            # self.daily_charts_widget.setVisible(True)
             self.scroll_area.setVisible(True)
 
         self.calc_active = not self.calc_active
@@ -344,9 +323,7 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
         total_peak_start = 0
         total_peak_end = 0
 
-        for i, path in enumerate(
-            self.intensity_files
-        ):  # for path in self.intensity_files:
+        for i, path in enumerate(self.intensity_files):
             try:
                 day_time, intense = load_intensity_data(path)
                 grouped = intensity_grouped(path)
@@ -373,7 +350,6 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             self.all_intense.append(intense)
             self.all_peak_ranges.append((peak_start, peak_end))
 
-
             summary_text += (
                 f"Dzień {i+1}: największy ruch od "
                 f"{peak_start // 60:02d}:{peak_start % 60:02d} "
@@ -391,31 +367,6 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             )
 
         self.result_label.setText(summary_text)
-        # self.show_plot()
-
-        """
-        avg_time = sum(self.connection_time) / len(self.connection_time)
-
-        peak_start = 0
-        interval = 60
-        biggest = 0
-        for counter in range(1, 1380):
-            sum_intense = 0
-            for h in range(counter, counter + interval):
-                if h in self.grouped_intensity:
-                    sum_intense += self.grouped_intensity.get(h)
-            if sum_intense > biggest:
-                biggest = sum_intense
-                peak_start = counter
-        peak_end = peak_start + interval
-        self.result_label.setText(
-            f"Średni czas trwania: {avg_time:.2f} s\n"
-            f"Największy ruch: {peak_start//60:02d}:{peak_start%60:02d} - {peak_end//60:02d}:{peak_end%60:02d}"
-        )
-
-        self.peak_start = peak_start
-        self.peak_end = peak_end
-        """
 
     def calculate_tcbh(self):
         self.open_file_dialog()
@@ -507,27 +458,6 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             ax.legend()
 
             self.daily_charts_layout.addWidget(canvas)
-
-        """
-        self.ax.plot(self.day_time, self.intense, "b")
-
-        if self.peak_start is not None and self.peak_end is not None:
-            self.ax.axvline(
-                x=self.peak_start, color="red", linestyle="--", label="Początek GNR"
-            )
-            self.ax.axvline(
-                x=self.peak_end, color="red", linestyle="--", label="Koniec GNR"
-            )
-            self.ax.legend()
-
-        self.ax.set_xlabel("Czas w ciągu doby [min]")
-        self.ax.set_ylabel("Ilość połączeń")
-        self.ax.set_title("Intensywność ruchu")
-        # TODO zmienić odstępy w siatce na 60 zamiast obecnych 200 dla większej czytelności
-        self.ax.grid(True, which="major", linestyle="-", linewidth=0.75)
-        self.canvas.draw()
-        self.canvas.setVisible(True)
-        """
 
 
 # Uruchomienie aplikacji
