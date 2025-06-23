@@ -1,10 +1,8 @@
 import sys
-import numpy as np
 from PyQt6.QtCore import Qt
 from pathlib import Path
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 from matplotlib.figure import Figure
+from PyQt6.QtGui import QGuiApplication
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -43,7 +41,6 @@ intensity_file = (
 
 # implementacja jednej metody sugerowanie tcbh
 # plus uśredniony wykres ze wszystkiego na koniec
-# podświetlenie tego gnr
 # wartość uśredniona w tej godzinie
 
 
@@ -266,6 +263,11 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
              <p>
              Definicje pojęć telekomunikacyjnych:   <b> https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-E.600-198811-S!!PDF-E&type=items </b>
              </p>
+             
+             <h3>📌 Linki do dokumentów organizacji standaryzujących </h3>
+             <p>
+             https://www.etsi.org/deliver/etsi_tr/145900_145999/145926/18.00.00_60/tr_145926v180000p.pdf
+             </p>
             """
         )
         layout.addWidget(text)
@@ -371,10 +373,12 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             self.all_intense.append(intense)
             self.all_peak_ranges.append((peak_start, peak_end))
 
+
             summary_text += (
                 f"Dzień {i+1}: największy ruch od "
                 f"{peak_start // 60:02d}:{peak_start % 60:02d} "
-                f"do {peak_end // 60:02d}:{peak_end % 60:02d}\n"
+                f"do {peak_end // 60:02d}:{peak_end % 60:02d} "
+                f"Wartość natężenia ruchu w GNR: {biggest/60} Erl \n"
             )
 
         num_files = len(self.intensity_files)
@@ -445,21 +449,6 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
         peak_end = peak_start + interval
 
         self.all_peak_ranges.append((peak_start, peak_end))
-
-    # TODO zrobić żeby pokazywało ilość erlandów na wykresie
-    """
-    # poniżej jest wzór z wikipedi angielskiej od razu w pythonie
-
-    def erlang_b(E, m: int) -> float:
-        //Calculate the probability of call losses.
-        inv_b = 1.0
-        for j in range(1, m + 1):
-            inv_b = 1.0 + inv_b * j / E
-        return 1.0 / inv_b
-    """
-
-    # odnieść się do dokumentów standaryzacyjnych w metodach liczenia gnr
-    # opcjonalnie link do dokumentów to wyjaśniających
 
     def show_plot(self):
         """Tworzy wykres zbiorczy oraz osobne wykresy dla każdego dnia."""
