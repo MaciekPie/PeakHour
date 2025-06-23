@@ -287,9 +287,9 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             self.peak_end = None
 
             # DODANE
-            self.all_day_time.clear()
-            self.all_intense.clear()
-            self.all_peak_ranges.clear()
+            for attr in ["all_day_time", "all_intense", "all_peak_ranges"]:
+                if hasattr(self, attr):
+                    getattr(self, attr).clear()
 
             # self.canvas.setVisible(False)
             # self.daily_charts_widget.setVisible(False)
@@ -316,7 +316,7 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
         self.time_file = time_file
         self.open_file_dialog()
 
-        if not self.intensity_files:
+        if self.intensity_files == [] or self.time_file == []:
             self.result_label.setText("Nie wybrano żadnych plików.")
             return  # zakończ jeśli nie ma plików
 
@@ -324,12 +324,19 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
         self.all_intense = []
         self.all_peak_ranges = []
 
-        self.connection_time = load_time_data(self.time_file)
+        try:
+            self.connection_time = load_time_data(self.time_file)
+        except Exception as e:
+            self.result_label.setText(f"Błąd przy wczytywaniu pliku z czasami: {e}")
+            return
+
+        if not self.connection_time:
+            self.result_label.setText(
+                "Plik z czasami połączeń jest pusty lub nieprawidłowy."
+            )
+            return
+
         avg_time = sum(self.connection_time) / len(self.connection_time)
-
-        # self.day_time, self.intense = load_intensity_data(self.intensity_file)
-        # self.grouped_intensity = intensity_grouped(self.intensity_file)
-
         summary_text = f"Średni czas trwania połączenia: {avg_time:.2f} s\n\n"
 
         total_peak_start = 0
@@ -338,8 +345,12 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
         for i, path in enumerate(
             self.intensity_files
         ):  # for path in self.intensity_files:
-            day_time, intense = load_intensity_data(path)
-            grouped = intensity_grouped(path)
+            try:
+                day_time, intense = load_intensity_data(path)
+                grouped = intensity_grouped(path)
+            except Exception as e:
+                summary_text += f"Dzień {i+1}: Błąd wczytywania danych ({e})\n"
+                continue  # pomiń ten plik
 
             peak_start = 0
             interval = 60
@@ -449,10 +460,15 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
 
     # odnieść się do dokumentów standaryzacyjnych w metodach liczenia gnr
     # opcjonalnie link do dokumentów to wyjaśniających
-    # następny update na 05.06
 
     def show_plot(self):
         """Tworzy wykres zbiorczy oraz osobne wykresy dla każdego dnia."""
+        if not hasattr(self, "all_day_time") or not self.all_day_time:
+            self.result_label.setText(
+                "Brak danych do wyświetlenia wykresu. Najpierw oblicz ADPQH."
+            )
+            return
+
         self.ax.clear()
 
         # Wykres zbiorczy
