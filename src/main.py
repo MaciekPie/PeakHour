@@ -25,9 +25,6 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 time_file = (
     # "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
     "../data/time.txt"
-    "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
-    # "../data/time.txt"
-    ""
 )
 
 
@@ -35,16 +32,6 @@ intensity_file = (
     # "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intense.txt"
     "../data/intensity.txt"
 )
-
-# todo wartości natężenia ruchu w tej godzinie
-# todo deadline: 25.06.2025 !!!!
-# TODO wiele (2){im więcej tym lepiej} metod i pokazac różnice między nimi
-# TODO dodać slider w gui oraz opcję wyświetlania wykresów z wielu danych
-# TODO i cyk do execa
-
-# implementacja jednej metody sugerowanie tcbh
-# plus uśredniony wykres ze wszystkiego na koniec
-# wartość uśredniona w tej godzinie
 
 
 def load_time_data(filepath):
