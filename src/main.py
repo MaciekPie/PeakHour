@@ -23,14 +23,14 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 time_file = (
-    "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
-    # "../data/time.txt"
+    # "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
+    "../data/time.txt"
 )
 
 
 intensity_file = (
-    "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intense.txt"
-    # "../data/intensity.txt"
+    #"c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intense.txt"
+     "../data/intensity.txt"
 )
 
 # todo wartości natężenia ruchu w tej godzinie
@@ -207,7 +207,7 @@ class TrafficAnalysisApp(QMainWindow):
         filenames, _ = QFileDialog.getOpenFileNames(
             self,
             "Wybierz pliki z intensywnością",
-            "C:\\Users\\Lenovo\\PycharmProjects\\TeoriaRuchuAleDziała\\PeakHour\\data",
+            "..\\data",
             "Text File (*.txt)",
         )
         if filenames:
@@ -393,29 +393,6 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
         self.result_label.setText(summary_text)
         # self.show_plot()
 
-        """
-        avg_time = sum(self.connection_time) / len(self.connection_time)
-
-        peak_start = 0
-        interval = 60
-        biggest = 0
-        for counter in range(1, 1380):
-            sum_intense = 0
-            for h in range(counter, counter + interval):
-                if h in self.grouped_intensity:
-                    sum_intense += self.grouped_intensity.get(h)
-            if sum_intense > biggest:
-                biggest = sum_intense
-                peak_start = counter
-        peak_end = peak_start + interval
-        self.result_label.setText(
-            f"Średni czas trwania: {avg_time:.2f} s\n"
-            f"Największy ruch: {peak_start//60:02d}:{peak_start%60:02d} - {peak_end//60:02d}:{peak_end%60:02d}"
-        )
-
-        self.peak_start = peak_start
-        self.peak_end = peak_end
-        """
 
     def calculate_tcbh(self):
         self.open_file_dialog()
