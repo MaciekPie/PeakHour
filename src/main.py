@@ -23,14 +23,14 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 time_file = (
-    # "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
-    "../data/time.txt"
+    "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
+    # "../data/time.txt"
 )
 
 
 intensity_file = (
-    # "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intense.txt"
-    "../data/intensity.txt"
+    "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intense.txt"
+    # "../data/intensity.txt"
 )
 
 
@@ -188,13 +188,12 @@ class TrafficAnalysisApp(QMainWindow):
     def open_file_dialog_time(self):
         filename, ok = QFileDialog.getOpenFileName(
             self,
-            "Wybierz plik ze średnim czasem dostępu",
+            "Wybierz plik z czasami trwania połączeń",
             "..\\data",
             "Text File (*.txt)",
         )
         if filename:
             self.time_file = Path(filename)
-
 
     def init_education_page(self):
 
@@ -297,7 +296,7 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
         self.open_file_dialog_time()
         self.open_file_dialog()
 
-        if self.intensity_files == [] or self.time_file == []:
+        if self.intensity_files == [] or not self.time_file:
             self.result_label.setText("Nie wybrano żadnych plików.")
             return  # zakończ jeśli nie ma plików
 
@@ -353,8 +352,8 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             summary_text += (
                 f"Dzień {i+1}: największy ruch od "
                 f"{peak_start // 60:02d}:{peak_start % 60:02d} "
-                f"do {peak_end // 60:02d}:{peak_end % 60:02d} "
-                f"Wartość natężenia ruchu w GNR: {biggest/60} Erl \n"
+                f"do {peak_end // 60:02d}:{peak_end % 60:02d} \n"
+                f"Wartość natężenia ruchu w GNR: {biggest/60} Erl \n\n"
             )
 
         num_files = len(self.intensity_files)
@@ -424,7 +423,7 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             self.ax.axvline(x=peak_end, linestyle="--", color=colour)
 
         self.ax.set_xlabel("Czas w ciągu doby [min]")
-        self.ax.set_ylabel("Ilość połączeń")
+        self.ax.set_ylabel("Natężenie ruchu [Erl]")
         self.ax.set_title("Intensywność ruchu - wiele dni")
         self.ax.grid(True)
         self.ax.legend()
@@ -453,8 +452,8 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
             ax.axvline(x=peak_start, linestyle="--", color="red", label="Początek GNR")
             ax.axvline(x=peak_end, linestyle="--", color="red", label="Koniec GNR")
             ax.set_title(f"Dzień {i+1}")
-            ax.set_xlabel("Minuty")
-            ax.set_ylabel("Intensywność")
+            ax.set_xlabel("Czas w ciągu doby [min]")
+            ax.set_ylabel("Natężenie ruchu [Erl]")
             ax.grid(True)
             ax.legend()
 
