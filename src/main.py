@@ -186,14 +186,15 @@ class TrafficAnalysisApp(QMainWindow):
             self.intensity_files = [Path(fname) for fname in filenames]
 
     def open_file_dialog_time(self):
-        filenames, _ = QFileDialog.getOpenFileNames(
+        filename, ok = QFileDialog.getOpenFileName(
             self,
-            "Wybierz pliki ze średnim czasem dostępu",
+            "Wybierz plik ze średnim czasem dostępu",
             "..\\data",
             "Text File (*.txt)",
         )
-        if filenames:
-            self.time_file = [Path(fname) for fname in filenames]
+        if filename:
+            self.time_file = Path(filename)
+
 
     def init_education_page(self):
 
