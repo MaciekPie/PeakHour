@@ -185,6 +185,16 @@ class TrafficAnalysisApp(QMainWindow):
         if filenames:
             self.intensity_files = [Path(fname) for fname in filenames]
 
+    def open_file_dialog_time(self):
+        filenames, _ = QFileDialog.getOpenFileNames(
+            self,
+            "Wybierz pliki ze średnim czasem dostępu",
+            "..\\data",
+            "Text File (*.txt)",
+        )
+        if filenames:
+            self.time_file = [Path(fname) for fname in filenames]
+
     def init_education_page(self):
 
         self.education_page = QWidget()
@@ -283,7 +293,7 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
 
     def calculate_adpqh(self):
         """Oblicza ADPQH i wyświetla wynik."""
-        self.time_file = time_file
+        self.open_file_dialog_time()
         self.open_file_dialog()
 
         if self.intensity_files == [] or self.time_file == []:
