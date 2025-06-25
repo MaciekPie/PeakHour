@@ -23,14 +23,14 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 time_file = (
-    "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
-    # "../data/time.txt"
+    #"c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/time.txt"
+     "../data/time.txt"
 )
 
 
 intensity_file = (
-    "c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intense.txt"
-    # "../data/intensity.txt"
+    #"c:/Users/macie/Programowanie/Projekty/Github/PeakHour/data/intense.txt"
+     "../data/intensity.txt"
 )
 
 
@@ -84,6 +84,9 @@ class TrafficAnalysisApp(QMainWindow):
         self.all_intense = []
         self.all_peak_ranges = []
 
+        self.avg_peak_start = None
+        self.avg_peak_end = None
+
         self.peak_start = None
         self.peak_end = None
 
@@ -123,7 +126,7 @@ class TrafficAnalysisApp(QMainWindow):
         self.analysis_page = QWidget()
         layout = QVBoxLayout()
 
-        self.result_label = QLabel("Kliknij przycisk, aby wybrać metodę obliczania GNR")
+        self.result_label = QLabel("Kliknij przycisk, aby obliczyć GNR")
         layout.addWidget(self.result_label)
 
         self.calc_active = False
@@ -162,7 +165,7 @@ class TrafficAnalysisApp(QMainWindow):
         layout.addWidget(self.scroll_area)
 
         # === Przyciski ===
-        self.calc_button = QPushButton("Oblicz ADPQH")
+        self.calc_button = QPushButton("Oblicz ADPH")
         self.calc_button.clicked.connect(self.toggle_calculation_and_plot)
         layout.addWidget(self.calc_button)
 
@@ -224,22 +227,27 @@ GNR = argmax<sub>t∈[0,1380]</sub> ∑<sub>i=0</sub><sup>59</sup> A(t + i)
             Dla danego systemu telekomunikacyjnego składającego się z 1 linii i czasu obserwacji równego 1 godzinie, jeśli linia ta zajęta jest cały czas przez pełną godzinę, to natężenie ruchu wynosi 1 erlang; odpowiednio, jeśli linia ta zajęta jest przez 30 minut, natężenie to wynosi 0,5 erlanga. 
             </p>
 
-            <h3>📌 ADPQH – Average Daily Peak Quarter-Hour</h3>
+            <h3>📌 ADPH – Average Daily Peak Hour</h3>
             <p>
-            Metoda polega na zsumowaniu połączeń w <b>każdym 15-minutowym interwale</b> i znalezieniu tego o najwyższej wartości.
+            Metoda polega na zsumowaniu połączeń w <b>każdym 60-minutowym interwale</b> i znalezieniu tego o najwyższej wartości.
             </p>
             <pre>
-ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15q + i)
+ADPH = argmax<sub>q∈[0,23]</sub> <sup>1</sup>&frasl;<sub>60</sub></p>  * ∑<sub>i=0</sub><sup>59</sup> A(60q + i)
             </pre>
              
              <h3>📌 TCBH - Time-Consistent Busy Hour</h3>
              <p>
              Metoda polegająca na ustaleniu, <b> na podstawie danych z wielu dni </b>, kiedy średnia ilość połączeń jest największa. 
              </p>
-             
+             <pre>
+TCBH = <sup>1</sup>&frasl;<sub>N</sub></p> ∑<sub>j=1</sub><sup>N</sup> ADPH(j)
+            </pre>
+            <p>
+            gdzie N to liczba dni z których liczona jest ta wartość
+             </p>
              <h3>📌 Linki do dokumentów standaryzacyjnych</h3>
              <p>
-             Definicje metod licznia GNR:         <b> https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-E.500-198811-S!!PDF-E&type=items </b>
+             Definicje metod liczenia GNR:         <b> https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-E.500-198811-S!!PDF-E&type=items </b>
              </p>
              
              <p>
@@ -266,7 +274,7 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
     def toggle_calculation_and_plot(self):
         if self.calc_active:
             # Cofnij obliczenia i schowaj wykres
-            self.result_label.setText("Kliknij przycisk, aby obliczyć ADPQH")
+            self.result_label.setText("Kliknij przycisk, aby obliczyć ADPH")
             self.peak_start = None
             self.peak_end = None
 
@@ -353,16 +361,16 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
                 f"Dzień {i+1}: największy ruch od "
                 f"{peak_start // 60:02d}:{peak_start % 60:02d} "
                 f"do {peak_end // 60:02d}:{peak_end % 60:02d} \n"
-                f"Wartość natężenia ruchu w GNR: {biggest/60} Erl \n\n"
+                f"Wartość natężenia ruchu w GNR: {biggest} Erl \n\n"
             )
 
         num_files = len(self.intensity_files)
         if num_files > 0:
-            avg_peak_start = total_peak_start // num_files
-            avg_peak_end = total_peak_end // num_files
+            self.avg_peak_start = total_peak_start // num_files
+            self.avg_peak_end = total_peak_end // num_files
             summary_text += (
-                f"\nUśredniona GNR: {avg_peak_start // 60:02d}:{avg_peak_start % 60:02d} - "
-                f"{avg_peak_end // 60:02d}:{avg_peak_end % 60:02d}"
+                f"\nUśredniona GNR: {self.avg_peak_start // 60:02d}:{self.avg_peak_start % 60:02d} - "
+                f"{self.avg_peak_end // 60:02d}:{self.avg_peak_end % 60:02d}"
             )
 
         self.result_label.setText(summary_text)
@@ -405,7 +413,7 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
         """Tworzy wykres zbiorczy oraz osobne wykresy dla każdego dnia."""
         if not hasattr(self, "all_day_time") or not self.all_day_time:
             self.result_label.setText(
-                "Brak danych do wyświetlenia wykresu. Najpierw oblicz ADPQH."
+                "Brak danych do wyświetlenia wykresu. Najpierw oblicz ADPH."
             )
             return
 
@@ -419,8 +427,8 @@ ADPQH = argmax<sub>q∈[0,95]</sub> (1/15) * ∑<sub>i=0</sub><sup>14</sup> A(15
 
             (line,) = self.ax.plot(day_time, intense, label=f"Dzień {i+1}", alpha=0.62)
             colour = line.get_color()
-            self.ax.axvline(x=peak_start, linestyle="--", color=colour)
-            self.ax.axvline(x=peak_end, linestyle="--", color=colour)
+        self.ax.axvline(x=self.avg_peak_start, linestyle="--", color=colour)
+        self.ax.axvline(x=self.avg_peak_end, linestyle="--", color=colour)
 
         self.ax.set_xlabel("Czas w ciągu doby [min]")
         self.ax.set_ylabel("Natężenie ruchu [Erl]")
